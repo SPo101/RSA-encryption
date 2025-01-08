@@ -5,6 +5,12 @@
 
 #define Min(a, b) ((a < b) ? a : b)
 
+struct keys{
+	long long e;
+	long long d;
+	long long n;
+};
+
 int* Sieve_of_Eratosthenes( int N){
 	int *arr = malloc(sizeof(int) * N);
 	for(int i=0; i<N+1; i++)
@@ -85,18 +91,10 @@ char* Decrypt(long long d, long long n, long long *arr, int len){
 	return msg;
 }
 
-int main(){
-	char mes[] = "hello from c";
-	int len = 12;
-	printf("%s\n", mes);
-
-
-	int N = 15000;//count of all num
-	int pn;//count of prime num
+struct keys* Generate_keys(int N){
 	int p, q;
 	long long n, phi, e, d;
-	//keys - {e, n}-open, {d, n}-closed
-
+	int pn;//count of prime num
 
 	int *arr = Sieve_of_Eratosthenes(N); 
 	int *prime_arr = Prime_num(arr, N, &pn); 
@@ -111,25 +109,42 @@ int main(){
 
     	int x, y;
 	e = *(prime_arr + (rand() % pn));
-	while( Extended_gcd(e, phi, &x, &y) != 1)
+	while( Extended_gcd(phi, e, &x, &y) != 1)
 		e = *(prime_arr + (rand() % pn));
 	free(prime_arr);
 
  
     	Extended_gcd(phi, e, &x, &y);
 	d = phi - abs(Min(x, y));
+	
+	struct keys *New_pairs = malloc(sizeof(struct keys));
+	New_pairs->e = e;
+	New_pairs->d = d;
+	New_pairs->n = n;
+
+	return New_pairs;
+}
+
+int main(){
+	char mes[] = "hello from c";
+	int len = 12;
+	printf("%s\n", mes);
 
 
-	printf("{%lld, %lld}-open\n", e, n);
-	printf("{%lld, %lld}-private\n", e, d);
+	int N = 15000;//count of all num for sieve of Eratosthenes
+	//keys - {e, n}-open, {d, n}-closed
 
 
-	long long *encrypted_msg = Encrypt(e, n, mes, len);
-	char* msg = Decrypt(d, n, encrypted_msg, len);
+	struct keys *New_pair = Generate_keys(N);
+	long long *encrypted_msg = Encrypt(New_pair->e, New_pair->n, mes, len);
+	char* msg = Decrypt(New_pair->d, New_pair->n, encrypted_msg, len);
 
+
+	printf("{%10lld, %lld}-open\n", New_pair->e, New_pair->n);
+	printf("{%10lld, %lld}-private\n", New_pair->d, New_pair->n);
 	printf("%s", msg);
 
-
+	free(New_pair);
 	free(encrypted_msg);
 	free(msg);
 }	
