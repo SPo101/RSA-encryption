@@ -5,7 +5,8 @@
 
 #define Min(a, b) ((a < b) ? a : b)
 
-void Sieve_of_Eratosthenes(int *arr, int N){
+int* Sieve_of_Eratosthenes( int N){
+	int *arr = malloc(sizeof(int) * N);
 	for(int i=0; i<N+1; i++)
 		*(arr+i) = i;
 	for(int i=2; i<N+1; i++){
@@ -14,6 +15,7 @@ void Sieve_of_Eratosthenes(int *arr, int N){
 		for(int j=i*i; j<N+1; j+=i)
 			*(arr+j) = 0;
 	}
+	return arr;
 }
 
 int* Prime_num(int *arr, int N, int *count_prime){
@@ -96,22 +98,21 @@ int main(){
 	//keys - {e, n}-open, {d, n}-closed
 
 
-	int *arr = malloc(sizeof(int) * N);
-	Sieve_of_Eratosthenes(arr, N);
+	int *arr = Sieve_of_Eratosthenes(N); 
 	int *prime_arr = Prime_num(arr, N, &pn); 
 	free(arr);
 
 	srand(time(NULL));
-	p = *(prime_arr + rand() % pn);
-	q = *(prime_arr + rand() % pn);
+	p = *(prime_arr + (rand() % pn));
+	q = *(prime_arr + (rand() % pn));
 
 	n = p * q;
 	phi = (p-1) * (q-1);
 
     	int x, y;
-	e = *(prime_arr + rand() % pn);
+	e = *(prime_arr + (rand() % pn));
 	while( Extended_gcd(e, phi, &x, &y) != 1)
-		e = *(prime_arr + rand() % pn);
+		e = *(prime_arr + (rand() % pn));
 	free(prime_arr);
 
  
