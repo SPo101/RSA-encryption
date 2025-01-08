@@ -93,6 +93,16 @@ char* Decrypt(long long d, long long n, long long *arr, int len){
 	return msg;
 }
 
+int Check_keys(long long e, long long d, long long n){
+	int a = 100;
+
+	long long c = Encrypt_char(e, n, a);
+	char b = Decrypt_char(d, n, c);
+	if(a == b)
+		return 0;
+	return 1;
+}
+
 struct keys* Generate_keys(int N){
 	int p, q;
 	long long n, phi, e, d;
@@ -103,22 +113,24 @@ struct keys* Generate_keys(int N){
 	free(arr);
 
 	srand(time(NULL));
-	p = *(prime_arr + (rand() % pn));
-	q = *(prime_arr + (rand() % pn));
+	do{
+		p = *(prime_arr + (rand() % pn));
+		q = *(prime_arr + (rand() % pn));
 
-	n = p * q;
-	phi = (p-1) * (q-1);
+		n = p * q;
+		phi = (p-1) * (q-1);
 
-    	int x, y;
-	e = *(prime_arr + (rand() % pn));
-	while( Extended_gcd(phi, e, &x, &y) != 1)
+    		int x, y;
 		e = *(prime_arr + (rand() % pn));
-	free(prime_arr);
+		while( Extended_gcd(phi, e, &x, &y) != 1)
+			e = *(prime_arr + (rand() % pn));
 
  
-    	Extended_gcd(phi, e, &x, &y);
-	d = phi - abs(Min(x, y));
-	
+    		Extended_gcd(phi, e, &x, &y);
+		d = phi - abs(Min(x, y));
+	} while( Check_keys(e, d, n));
+	free(prime_arr);
+
 	struct keys *New_pairs = malloc(sizeof(struct keys));
 	New_pairs->e = e;
 	New_pairs->d = d;
@@ -143,6 +155,7 @@ void Usage(){
 	printf("Usage:\n");
 	printf("./rsa_encryption <filename>\n");
 }
+
 
 int main(int argc, char *argv[]){
 	
