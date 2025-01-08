@@ -1,6 +1,6 @@
 
 all:
-	@cc rsa.c
+	@cc rsa.c -o rsa_encryption
 
 clean:
-	@rm -f a.out
+	@rm -f a.out rsa_encryption

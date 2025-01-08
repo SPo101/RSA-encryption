@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define Min(a, b) ((a < b) ? a : b)
 
@@ -125,18 +127,39 @@ struct keys* Generate_keys(int N){
 	return New_pairs;
 }
 
-int main(){
-	char mes[] = "hello from c";
-	int len = 12;
-	printf("%s\n", mes);
+char *Read_file(char* path, int *len){
+	int fd = open(path, O_RDONLY);
+	int offset = lseek(fd, 0, SEEK_END);
+	lseek(fd, 0, SEEK_SET);
+	*len = offset;	
+	char *str = malloc(offset);
+	read(fd, str, offset);
+	close(fd);
 
+	return str;
+}
 
-	int N = 15000;//count of all num for sieve of Eratosthenes
+void Usage(){
+	printf("Usage:\n");
+	printf("./rsa_encryption <filename>\n");
+}
+
+int main(int argc, char *argv[]){
+	
+	if(argc != 2){
+		Usage();
+		return 1;
+	}
+
+	int len;
+	char *str = Read_file(argv[1], &len);
+
+	int N = 10000;//count of all num for sieve of Eratosthenes
 	//keys - {e, n}-open, {d, n}-closed
 
 
 	struct keys *New_pair = Generate_keys(N);
-	long long *encrypted_msg = Encrypt(New_pair->e, New_pair->n, mes, len);
+	long long *encrypted_msg = Encrypt(New_pair->e, New_pair->n, str, len);
 	char* msg = Decrypt(New_pair->d, New_pair->n, encrypted_msg, len);
 
 
@@ -144,7 +167,10 @@ int main(){
 	printf("{%10lld, %lld}-private\n", New_pair->d, New_pair->n);
 	printf("%s", msg);
 
+
+	free(str);
 	free(New_pair);
 	free(encrypted_msg);
 	free(msg);
+	return 0;
 }	
